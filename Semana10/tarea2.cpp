@@ -8,7 +8,7 @@ int knapSack(int W, vector<int>& wt, vector<int>& val, int n) {
     // Crear una matriz para almacenar los resultados de subproblemas
     vector<vector<int>> dp(n + 1, vector<int>(W + 1, 0));
 
-    // Llenar la matriz de manera iterativa
+    // Llenar la matriz de manera 
     for (int i = 1; i <= n; i++) {
         for (int w = 1; w <= W; w++) {
             if (wt[i - 1] <= w) {
@@ -33,7 +33,6 @@ int main() {
     vector<int> val = {2,3,4,5,6};
     vector<int> wt = {3,4,5,2,6};
 
-    // Asegurarse de que los valores y pesos estén dentro de los límites esperados
     if (N <= 0 || N > 1000 || W <= 0 || W>1000 || val.size() != N || wt.size() != N) {
         cout << "Error: Los valores de entrada no son válidos." << endl;
         return 1;

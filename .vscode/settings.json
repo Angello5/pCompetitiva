@@ -3,6 +3,8 @@
     "git.ignoreLimitWarning": true,
     "files.associations": {
         "vector": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "__locale": "cpp",
+        "ostream": "cpp"
     }
 }
