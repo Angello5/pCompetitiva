@@ -18,7 +18,7 @@ int knapSack(int W, vector<int>& wt, vector<int>& val, int n) {
                 dp[i][w] = max(dp[i - 1][w], value_with_item);
             } else {
                 // No podemos tomar el objeto porque excede el peso actual
-                dp[i][w] = dp[i - 1][w];
+                dp[i][w] = dp[i - 1][w];    
             }
         }
     }
@@ -41,4 +41,4 @@ int main() {
     cout << "El valor máximo que se puede obtener en la mochila es: " << knapSack(W, wt, val, N) << endl;
 
     return 0;
-}
+}      
