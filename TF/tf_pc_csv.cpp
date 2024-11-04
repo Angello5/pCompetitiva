@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <iomanip>
+#include <map>
 using namespace std;
 
 struct ResultadoKadane {
@@ -35,61 +37,90 @@ ResultadoKadane kadaneAlgorithm(const vector<float>& ingresos) {
     return {maxGlobal, indiceInicio, indiceFin};
 }
 
-// Función para leer ingresos desde un archivo CSV
-vector<float> leerIngresosDesdeCSV(const string& nombreArchivo) {
-    vector<float> ingresos;
+// Función para leer ingresos desde un archivo CSV con año
+map<int, vector<float>> leerIngresosDesdeCSV(const string& nombreArchivo) {
+    map<int, vector<float>> ingresosPorAnio;
     ifstream archivo(nombreArchivo);
     string linea;
 
     if (!archivo.is_open()) {
         cerr << "No se pudo abrir el archivo: " << nombreArchivo << endl;
-        return ingresos;
+        return ingresosPorAnio;
     }
 
-    // Ignorar la primera línea (nombre de la empresa)
+    // Leer el encabezado
     getline(archivo, linea);
 
-    // Leer cada línea de datos a partir de la segunda línea
+    // Leer cada línea de datos
     while (getline(archivo, linea)) {
         stringstream ss(linea);
-        string mes, ingresoStr;
+        string añoStr, mes, ingresoStr;
+        int año;
         float ingreso;
 
-        // Leer la columna de "Mes" y "Ingresos", separadas por punto y coma (;)
+        // Leer las columnas separadas por punto y coma (;)
+        getline(ss, añoStr, ';');
         getline(ss, mes, ';');
         getline(ss, ingresoStr, ';');
 
-        // Convertir el ingreso a float y agregarlo al vector
-        ingreso = stof(ingresoStr);
-        ingresos.push_back(ingreso);
+        // Convertir los datos a los tipos apropiados y agregar al mapa
+        try {
+            año = stoi(añoStr);
+            ingreso = stof(ingresoStr);
+            ingresosPorAnio[año].push_back(ingreso);
+        } catch (invalid_argument&) {
+            cerr << "Formato de ingreso inválido en la línea: " << linea << endl;
+        }
     }
 
     archivo.close();
-    return ingresos;
+    return ingresosPorAnio;
 }
 
 int main() {
-    string nombreArchivo = "MicroEmpresa1.csv"; // Nombre del archivo CSV
-    vector<float> ingresos = leerIngresosDesdeCSV(nombreArchivo);
+    string nombreArchivo = "microEmpresaFinal.csv"; // Nombre del archivo CSV
+    map<int, vector<float>> ingresosPorAnio = leerIngresosDesdeCSV(nombreArchivo);
 
-    if (ingresos.empty()) {
+    if (ingresosPorAnio.empty()) {
         cout << "No se encontraron ingresos en el archivo." << endl;
         return 1;
     }
 
-    ResultadoKadane resultado = kadaneAlgorithm(ingresos);
+    // Nombres de los meses
+    vector<string> meses = {"ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO",
+                           "JULIO", "AGOSTO", "SETIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"};
 
-    cout << "La mayor suma de ingresos es: " << resultado.sumaMaxima << endl;
-    cout << "Este valor se obtiene entre los meses " << (resultado.indiceInicio + 1)
-         << " y " << (resultado.indiceFin + 1) << "." << endl;
+    // Procesar cada año por separado
+    for (auto& [año, ingresos] : ingresosPorAnio) {
+        if (ingresos.empty()) {
+            cout << "No hay ingresos para el año " << año << "." << endl;
+            continue;
+        }
 
-    // Imprimir los valores que componen la subsecuencia más rentable
-    cout << "Los ingresos que forman esta subsecuencia son: ";
-    for (int i = resultado.indiceInicio; i <= resultado.indiceFin; ++i) {
-        cout << ingresos[i];
-        if (i < resultado.indiceFin) cout << ", ";
+        ResultadoKadane resultado = kadaneAlgorithm(ingresos);
+
+        // Calcular los meses correspondientes
+        int indiceInicio = resultado.indiceInicio;
+        int indiceFin = resultado.indiceFin;
+
+        string mesInicio = (indiceInicio >= 0 && indiceInicio < meses.size()) ? meses[indiceInicio] : "Desconocido";
+        string mesFin = (indiceFin >= 0 && indiceFin < meses.size()) ? meses[indiceFin] : "Desconocido";
+
+        // Formatear la salida a dos decimales
+        cout << fixed << setprecision(2);
+
+        cout << "Año: " << año << endl;
+        cout << "La mayor suma de ingresos es: " << resultado.sumaMaxima << " soles" << endl;
+        cout << "Este valor se obtiene entre " << mesInicio << " y " << mesFin << "." << endl;
+
+        // Imprimir los valores que componen la subsecuencia más rentable
+        cout << "Los ingresos que forman esta subsecuencia son: ";
+        for (int i = resultado.indiceInicio; i <= resultado.indiceFin; ++i) {
+            cout << ingresos[i];
+            if (i < resultado.indiceFin) cout << ", ";
+        }
+        cout << "\n----------------------------------------\n";
     }
-    cout << endl;
 
     return 0;
 }
