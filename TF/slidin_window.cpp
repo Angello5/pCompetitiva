@@ -6,20 +6,17 @@
 #include <iomanip>
 using namespace std;
 
-// Estructura para almacenar mes y año
 struct MesAnio {
     int anio;
     string mes;
 };
 
-// Función para encontrar la subsecuencia de 3 meses con la suma máxima
 struct ResultadoVentana {
     float sumaMaxima;
     int indiceInicio;
     int indiceFin;
 };
 
-// Función para leer ingresos desde un archivo CSV
 vector<float> leerIngresosDesdeCSV(const string& nombreArchivo, vector<MesAnio>& mesesAnios) {
     vector<float> ingresos;
     ifstream archivo(nombreArchivo);
@@ -33,24 +30,24 @@ vector<float> leerIngresosDesdeCSV(const string& nombreArchivo, vector<MesAnio>&
     // Leer el encabezado
     getline(archivo, linea);
 
-    // Leer cada línea de datos
+
     while (getline(archivo, linea)) {
         stringstream ss(linea);
-        string añoStr, mes, ingresoStr;
-        int año;
+        string anioStr, mes, ingresoStr;
+        int anio;
         float ingreso;
 
-        // Leer las columnas separadas por punto y coma (;)
-        getline(ss, añoStr, ';');
+
+        getline(ss, anioStr, ';');
         getline(ss, mes, ';');
         getline(ss, ingresoStr, ';');
 
         // Convertir los datos a los tipos apropiados y agregar al vector
         try {
-            año = stoi(añoStr);
+            anio = stoi(anioStr);
             ingreso = stof(ingresoStr);
             ingresos.push_back(ingreso);
-            mesesAnios.push_back({año, mes});
+            mesesAnios.push_back({anio, mes});
         } catch (invalid_argument&) {
             cerr << "Formato de ingreso inválido en la línea: " << linea << endl;
         }
@@ -73,17 +70,17 @@ ResultadoVentana ventanaDeslizante(const vector<float>& ingresos) {
         sumaActual += ingresos[i];
     }
 
-    float sumaMaxima = sumaActual;
+    float sumaMaxima = sumaActual; // inicializa la suna maxima con la suma inicial
     int indiceInicio = 0;
     int indiceFin = k - 1;
 
     // Deslizar la ventana a través del arreglo
     for (int i = k; i < ingresos.size(); ++i) {
-        sumaActual += ingresos[i] - ingresos[i - k];
+        sumaActual += ingresos[i] - ingresos[i - k]; //agregar el ingreso del nuevo mes que entra por la ventana y resta el ingreso del mes que sale de la vetana
         if (sumaActual > sumaMaxima) {
-            sumaMaxima = sumaActual;
-            indiceInicio = i - k + 1;
-            indiceFin = i;
+            sumaMaxima = sumaActual; //actualiza la suma maxima 
+            indiceInicio = i - k + 1; //actualiza el indice inicio
+            indiceFin = i;             // actualiza el indice final
         }
     }
 
@@ -92,7 +89,7 @@ ResultadoVentana ventanaDeslizante(const vector<float>& ingresos) {
 
 int main() {
     string nombreArchivo = "microEmpresaFinal.csv";
-    vector<MesAnio> mesesAnios; // Vector para almacenar año y mes correspondientes a cada ingreso
+    vector<MesAnio> mesesAnios; 
     vector<float> ingresos = leerIngresosDesdeCSV(nombreArchivo, mesesAnios);
 
     if (ingresos.empty()) {
@@ -102,7 +99,7 @@ int main() {
 
     ResultadoVentana resultado = ventanaDeslizante(ingresos);
 
-    // Validar que los índices estén dentro del rango
+    // validar indices en el rango
     if (resultado.indiceInicio == -1 || resultado.indiceFin == -1) {
         cout << "No hay suficientes meses para analizar." << endl;
         return 1;
@@ -117,7 +114,7 @@ int main() {
          << " y " << mesesAnios[resultado.indiceFin].mes
          << " del año " << mesesAnios[resultado.indiceFin].anio << "." << endl;
 
-    // Imprimir los valores que componen la subsecuencia más rentable
+    
     cout << "Los ingresos que forman esta subsecuencia son: ";
     for (int i = resultado.indiceInicio; i <= resultado.indiceFin; ++i) {
         cout << ingresos[i];
